@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Pelanggan RT/RW Net</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --info: #17a2b8;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .card-form {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .date-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-custom {
+            width: 100%;
+            min-width: 850px;
+            background: white;
+            border-collapse: collapse;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        .table-custom th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .number-col {
+            width: 50px;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 0 auto;
+            color: white;
+        }
+
+        .bg-success { background: var(--success); }
+        .bg-warning { background: var(--warning); }
+        .bg-danger { background: var(--danger); }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: white;
+            transition: transform 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+        .btn-info { background: var(--info); }
+        .btn-primary { background: var(--primary); }
+
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .date-group {
+                grid-template-columns: 1fr;
+            }
+            .search-box {
+                margin-left: 15px;
+                margin-right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+        	
+            <h1><i class="fas fa-wifi" style="" ></i> Manajemen Pelanggan RT/RW Net</h1>
+        </div>
+
+        <div class="card-form">
+        	
+            <form id="customerForm">
+            	
+                <div class="form-grid">
+                    <input type="text" class="form-control" placeholder="Nama Pelanggan" id="nama" required>
+                    <input type="text" class="form-control" placeholder="RT" id="rt" required>
+                    <input type="text" class="form-control" placeholder="RW" id="rw" required>
+                    <input type="text" class="form-control" placeholder="Alamat" id="alamat" required>
+                    	<input type="text" class="form-control ip-address" 
+                           placeholder="IP Address" 
+                           id="ip_address" 
+                           pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+                           required>
+                    <select class="form-select" id="paket" required>
+                        <option value="">Pilih Paket</option>
+                        <option value="10 Mbps">10 Mbps - Rp 150.000</option>
+                        <option value="20 Mbps">20 Mbps - Rp 250.000</option>
+                        <option value="50 Mbps">50 Mbps - Rp 350.000</option>
+                    </select>
+                    <input type="tel" class="form-control" 
+                           placeholder="Nomor WhatsApp (628xx)" 
+                           id="nomor_wa" 
+                           pattern="^628[0-9]{9,12}$"
+                           required>
+                    <div class="date-group">
+                        <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 20px;">
+  <label for="tanggal_daftar" style="margin-bottom: 5px;">Tanggal Daftar:</label>
+  <input type="date" class="form-control" id="tanggal_daftar" required style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;">
+</div>
+
+<div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 20px;">
+  <label for="jatuh_tempo" style="margin-bottom: 5px;">Jatuh Tempo:</label>
+  <input type="date" class="form-control" id="jatuh_tempo" required style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;">
+</div>
+
+<div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 20px;">
+  <label for="tanggal_perpanjang" style="margin-bottom: 5px;">Perpanjang Paket:</label>
+  <input type="date" class="form-control" id="tanggal_perpanjang" style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;">
+</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-plus"></i> Tambah Pelanggan
+                </button>
+            </form>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="form-control" placeholder="Cari pelanggan..." id="searchInput">
+            <i class="fas fa-search"></i>
+        </div>
+
+        <div class="table-container">
+            <table class="table-custom">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="number-col">No</th>
+                        <th>Nama</th>
+                        <th>RT/RW</th>
+                        <th>Alamat</th>
+                        <th>IP Address</th>
+                        <th>Paket</th>
+                        <th>Status</th>
+                        <th>Tanggal Daftar</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="customerTable">
+                    <!-- Data akan dimuat disini -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+
+        function saveData() {
+            localStorage.setItem('customers', JSON.stringify(customers));
+        }
+
+        function hitungJatuhTempo(tanggalDaftar) {
+            const date = new Date(tanggalDaftar);
+            date.setDate(date.getDate() + 30);
+            return date.toISOString().split('T')[0];
+        }
+        
+        document.getElementById('tanggal_daftar').addEventListener('change', function() {
+            const jatuhTempo = hitungJatuhTempo(this.value);
+            document.getElementById('jatuh_tempo').value = jatuhTempo;
+        });
+
+        document.getElementById('tanggal_perpanjang').addEventListener('change', function() {
+            if(this.value) {
+                document.getElementById('jatuh_tempo').value = this.value;
+            }
+        });
+
+        function renderTable(data = customers) {
+            const tbody = document.getElementById('customerTable');
+            tbody.innerHTML = data.map((customer, index) => {
+                const tanggalDaftar = new Date(customer.tanggal_daftar);
+                const jatuhTempo = new Date(customer.jatuh_tempo);
+                const hariIni = new Date();
+                
+                let status = {
+                    class: 'bg-success',
+                    text: 'AKTIF'
+                };
+
+                if (jatuhTempo < hariIni) {
+                    status.class = 'bg-danger';
+                    status.text = 'NON-AKTIF';
+                } else if ((jatuhTempo - hariIni) / (1000 * 60 * 60 * 24) <= 5) {
+                    status.class = 'bg-warning';
+                    status.text = 'SEGERA BERAKHIR';
+                }
+
+                return `
+                    <tr>
+                        <td class="number-col">${index + 1}</td>
+                        <td>${customer.nama}</td>
+                        <td>${customer.rt}/${customer.rw}</td>
+                        <td>${customer.alamat}</td>
+                        <td class="ip-address">${customer.ip_address}</td>
+                        <td>${customer.paket}</td>
+                        <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                        <td>${tanggalDaftar.toLocaleDateString('id-ID')}</td>
+                        <td>${jatuhTempo.toLocaleDateString('id-ID')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-warning" onclick="editCustomer('${customer.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-action btn-danger" onclick="deleteCustomer('${customer.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn-action btn-success" onclick="sendReminder('${customer.id}')">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
+                                <button class="btn-action btn-primary bg-primary" onclick="perpanjangMasaAktif('${customer.id}')">
+                                    <i class="fas fa-tag"></i>
+                                </button>
+                                <button class="btn-action btn-info bg-danger" onclick="peringatanPaket('${customer.id}')">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newCustomer = {
+                id: Date.now().toString(),
+                nama: document.getElementById('nama').value,
+                rt: document.getElementById('rt').value,
+                rw: document.getElementById('rw').value,
+                alamat: document.getElementById('alamat').value,
+                ip_address: document.getElementById('ip_address').value,
+                paket: document.getElementById('paket').value,
+                nomor_wa: document.getElementById('nomor_wa').value,
+                tanggal_daftar: document.getElementById('tanggal_daftar').value,
+                jatuh_tempo: document.getElementById('jatuh_tempo').value
+            };
+
+            customers.push(newCustomer);
+            saveData();
+            renderTable();
+            this.reset();
+            document.getElementById('jatuh_tempo').value = '';
+            document.getElementById('tanggal_perpanjang').value = '';
+        });
+
+        function editCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+                document.getElementById('nama').value = customer.nama;
+                document.getElementById('rt').value = customer.rt;
+                document.getElementById('rw').value = customer.rw;
+                document.getElementById('alamat').value = customer.alamat;
+                document.getElementById('ip_address').value = customer.ip_address;
+                document.getElementById('paket').value = customer.paket;
+                document.getElementById('nomor_wa').value = customer.nomor_wa;
+                document.getElementById('tanggal_daftar').value = customer.tanggal_daftar;
+                document.getElementById('jatuh_tempo').value = customer.jatuh_tempo;
+
+                customers = customers.filter(c => c.id !== id);
+                saveData();
+                renderTable();
+            }
+        }
+
+        function deleteCustomer(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
+                customers = customers.filter(c => c.id !== id);
+                saveData();
+                renderTable();
+            }
+        }
+
+        function sendReminder(id) {
+    const customer = customers.find(c => c.id === id);
+    if (customer) {
+        const packagePrice = {
+            '10 Mbps': 150000,
+            '20 Mbps': 250000,
+            '50 Mbps': 350000
+        };
+        
+        const hariIni = new Date();
+        const jatuhTempo = new Date(customer.jatuh_tempo);
+        const selisihHari = Math.ceil((jatuhTempo - hariIni) / (1000 * 60 * 60 * 24));
+        
+        let statusText = 'AKTIF';
+        if (jatuhTempo < hariIni) {
+            statusText = 'NON-AKTIF';
+        } else if (selisihHari <= 5) {
+            statusText = 'SEGERA BERAKHIR';
+        }
+                
+                const message = `Yth. Pelanggan ${customer.nama},
+
+*REMINDER PEMBAYARAN INTERNET*
+RT/RW: ${customer.rt}/${customer.rw}
+Paket: ${customer.paket}
+IP Address: ${customer.ip_address}
+Status: ${statusText}
+Alamat: ${customer.alamat}
+Jatuh Tempo: ${new Date(customer.jatuh_tempo).toLocaleDateString('id-ID')}
+Total Tagihan: Rp ${packagePrice[customer.paket].toLocaleString('id-ID')}
+Pembayaran dapat dilakukan ke:
+Bank BCA - 1234567890
+a.n. RT/RW Net
+
+Konfirmasi pembayaran via WA ini.
+Terima kasih.`;
+
+                window.open(`https://wa.me/${customer.nomor_wa}?text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+        
+// Perpanjang masa aktif
+        function perpanjangMasaAktif(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+                const jatuhTempoBaru = new Date(customer.jatuh_tempo);
+                jatuhTempoBaru.setDate(jatuhTempoBaru.getDate() + 30);
+                customer.jatuh_tempo = jatuhTempoBaru.toISOString().split('T')[0];
+                const packagePrice = {
+            '10 Mbps': 150000,
+            '20 Mbps': 250000,
+            '50 Mbps': 350000
+        };
+        
+        const hariIni = new Date();
+        const jatuhTempo = new Date(customer.jatuh_tempo);
+        const selisihHari = Math.ceil((jatuhTempo - hariIni) / (1000 * 60 * 60 * 24));
+        
+        let statusText = 'AKTIF';
+        if (jatuhTempo < hariIni) {
+            statusText = 'NON-AKTIF';
+        } else if (selisihHari <= 3) {
+            statusText = 'SEGERA BERAKHIR';
+        }
+                
+                // Notifikasi ke admin
+                const adminMessage = `
+                
+[KONFIRMASI]
+
+Terimakasih ${customer.nama} telah memperpanjang paket langganan ${customer.paket}.
+
+Detail Perpanjangan:
+- Nama: ${customer.nama}
+- Paket: ${customer.paket}
+- Status: ${statusText}
+- Jatuh Tempo Baru: ${new Date(customer.jatuh_tempo).toLocaleDateString('id-ID')}
+
+Kami berharap Anda dapat menikmati layanan kami dengan lebih baik. Jika Anda memiliki pertanyaan atau kebutuhan, silakan hubungi kami melalui nomor ini.
+
+Terimakasih atas kepercayaan Anda!
+`;
+
+window.open(`https://wa.me/${customer.nomor_wa}?text=${encodeURIComponent(adminMessage)}`, '_blank');
+saveData();
+renderTable();
+}
+}
+//perpanjang finish
+
+// Peringatan 
+        function peringatanPaket(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+            	
+        const hariIni = new Date();
+        const jatuhTempo = new Date(customer.jatuh_tempo);
+        const selisihHari = Math.ceil((jatuhTempo - hariIni) / (1000 * 60 * 60 * 24));
+        
+        let statusText = 'AKTIF';
+        if (jatuhTempo < hariIni) {
+            statusText = 'NON-AKTIF';
+        } else if (selisihHari <= 3) {
+            statusText = 'SEGERA BERAKHIR';
+        }
+       
+    const adminMessage = `
+[INFORMASI LANGGANAN]
+Yth. ${customer.nama},
+Informasi : 
+Status: *${statusText}*
+Jatuh Tempo : *${jatuhTempo.toLocaleDateString('id-ID')}* 
+
+Kami ingin menginformasikan bahwa status langganan Anda saat ini adalah *${statusText}*. Mohon untuk menyiapkan pembayaran sesuai dengan tanggal jatuh tempo yang telah ditentukan .
+
+Jika Anda memiliki pertanyaan atau kebutuhan, silakan hubungi kami. Kami siap membantu.
+
+Terimakasih atas perhatian dan kepercayaan Anda!
+`;
+
+window.open(`https://wa.me/${customer.nomor_wa}?text=${encodeURIComponent(adminMessage)}`, '_blank');
+saveData();
+renderTable();
+}
+}
+//peringatan langganan 
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = customers.filter(customer =>
+                customer.nama.toLowerCase().includes(searchTerm) ||
+                customer.rt.includes(searchTerm) ||
+                customer.rw.includes(searchTerm) ||
+                customer.alamat.toLowerCase().includes(searchTerm)
+            );
+            renderTable(filtered);
+        });
+
+        function updateStatusOtomatis() {
+            customers.forEach(customer => {
+                const jatuhTempo = new Date(customer.jatuh_tempo);
+                if (jatuhTempo < new Date()) {
+                    customer.status = 'NON-AKTIF';
+                }
+            });
+            saveData();
+            renderTable();
+        }
+        setInterval(updateStatusOtomatis, 24 * 60 * 60 * 1000);
+
+        renderTable();
+    </script>
+</body>
+</html>
